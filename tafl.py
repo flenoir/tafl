@@ -7,8 +7,9 @@ cases_attaque = ["a3","a4","a5","a6","a7","b5","d0","e0","f0","g0","h0","f1","f9
 cases_defense = ["d5","e4","e5","e6", "f3","f4","f6","f7","g4","g5","g6","h5"]
 case_king = ["f5"]
 grid = {}
+current_game = {}
 # creation de tours pour gèrer les tours de jeu des 2 camps
-turn = 1.0
+turn = 0
 
 def index_cases():
     values = list(range(20,440,40))
@@ -52,66 +53,58 @@ def placer_pions():
         y = coord_cases[item][1]
         canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='blue', fill='blue')
 
-def move_pion(data):
+def move_pion(data,target):
     # print(pion)
     for el in cases_defense:
         if el == data: # si la case identifiée par la souris
         # alors on propose des choix de deplacement autorisés.
             # pion = "f8"
             print("trouvé")           
-            cases_defense[cases_defense.index(data)] = "g8"
+            cases_defense[cases_defense.index(data)] = target
             # print(cases_defense)
             canvas.delete("all")
             return placer_pions(), tracer_grille()
 
-def selected_case(d,p):
-    if (turn).is_integer():
-        selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
-        canvas.tag_lower(selected)
+def selected_case(d):
+    selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
+    canvas.tag_lower(selected)
 
+# il faut faire un tableau dans lequel on classe les tours et les cases selectionnées par la souris, si le tour != de int, on récupèrera la valeur de la case trouvée au tour précédent.
 
 def mouse_coords(event):
     global turn # préciser que c'est une variable globale sinon pb de scope
     #recupere les coordonnées du point x,y du clic de la souris
     mouse_point = (event.x, event.y)
-    if (turn).is_integer():
-        for x in grid: 
-            # print(mouse_point[0], grid[x][0])
-            varAbs  = mouse_point[0] - grid[x][0] 
-            varOrd = mouse_point[1] - grid[x][1]
-            abs_min = grid[x][0] - 15
-            abs_max = grid[x][0] + 15
-            ord_min = grid[x][1] - 15
-            ord_max = grid[x][1] + 15
-            # mouse selected point is converted in a case from the grid
-            if mouse_point[0] > abs_min and mouse_point[0] < abs_max :
-                if mouse_point[1] > ord_min and mouse_point[1] < ord_max :
-                    print("inferieur à 15 d'ecart", x)
-                    print(mouse_point, grid[x])
-                    #the case is sent to move_pion function as input
-                    # move_pion(str(x))
-                    selected_case(x, str(x))
-                    turn += 0.5
+
+    for x in grid: 
+        # print(mouse_point[0], grid[x][0])
+        varAbs  = mouse_point[0] - grid[x][0] 
+        varOrd = mouse_point[1] - grid[x][1]
+        abs_min = grid[x][0] - 15
+        abs_max = grid[x][0] + 15
+        ord_min = grid[x][1] - 15
+        ord_max = grid[x][1] + 15
+        # mouse selected point is converted in a case from the grid
+        if mouse_point[0] > abs_min and mouse_point[0] < abs_max :
+            if mouse_point[1] > ord_min and mouse_point[1] < ord_max :
+                # print("inferieur à 15 d'ecart", x)
+                current_game[turn]= x
+                if turn % 2 == 0:
+                    selected_case(x)
+                    turn += 1
                     print(turn)
-    else:
-        for x in grid: 
-            # print(mouse_point[0], grid[x][0])
-            varAbs  = mouse_point[0] - grid[x][0] 
-            varOrd = mouse_point[1] - grid[x][1]
-            abs_min = grid[x][0] - 15
-            abs_max = grid[x][0] + 15
-            ord_min = grid[x][1] - 15
-            ord_max = grid[x][1] + 15
-            # mouse selected point is converted in a case from the grid
-            if mouse_point[0] > abs_min and mouse_point[0] < abs_max :
-                if mouse_point[1] > ord_min and mouse_point[1] < ord_max :
-                    print("inferieur à 15 d'ecart", x)
+                else:
                     print(mouse_point, grid[x])
                     #the case is sent to move_pion function as input
-                    move_pion(str(x))
+                    val = current_game[turn-1]
+                    # print(str(x),str(val))
+                    move_pion(str(val),str(x))
                     # selected_case(x, str(x))
-                    turn += 0.5
+                    turn += 1
                     print(turn)
+                    # current_game[turn]= x
+                    print(current_game)
+    
 
                
 
@@ -129,7 +122,8 @@ bouton4 = Button(fenetre, text="move", command = lambda: move_pion('f7'))
 bouton4.pack()
 
 canvas.bind("<1>",mouse_coords)
-print(mouse_coords)
+# print(current_game)
+# print("resultat = " + str(mouse_coords))
 
 
 
