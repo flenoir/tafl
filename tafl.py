@@ -4,18 +4,15 @@ fenetre = Tk()
 
 # print(coord_cases["A1"][0])
 cases_attaque = ["a3","a4","a5","a6","a7","b5","d0","e0","f0","g0","h0","f1","f9","d10","e10","f10","g10","h10","j5","k3","k4","k5","k6","k7"]
-cases_defense = ["d5","e4","e5","e6", "f3","f4","f6","f7","g4","g5","g6","h5"]
+cases_defense = ["d5","e4","e5","e6",'f3',"f4","f6","f7","g4","g5","g6","h5"]
 case_king = ["f5"]
 grid = {}
 current_game = {}
-# creation de tours pour gèrer les tours de jeu des 2 camps
 turn = 0
 
 def index_cases():
     values = list(range(20,440,40))
     letters = ["a","b","c","d","e","f","g","h","i","j","k"]
-
-    # grid = {}
 
     for i,v in enumerate(letters):
         for j,w in enumerate(values):
@@ -24,7 +21,7 @@ def index_cases():
     return grid
 
 coord_cases = index_cases()
-print(coord_cases)
+# print(coord_cases)
 
 def tracer_grille():
     for line in range(13):
@@ -53,15 +50,11 @@ def placer_pions():
         y = coord_cases[item][1]
         canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='blue', fill='blue')
 
-def move_pion(data,target):
-    # print(pion)
-    for el in cases_defense:
-        if el == data: # si la case identifiée par la souris
-        # alors on propose des choix de deplacement autorisés.
-            # pion = "f8"
-            print("trouvé")           
-            cases_defense[cases_defense.index(data)] = target
-            # print(cases_defense)
+def move_pion(data,target,case_lists):
+    for el in case_lists:
+        if el == data: # if case is found by mouse_point
+        # the we move the pawn on the proper case list         
+            case_lists[case_lists.index(data)] = target
             canvas.delete("all")
             return placer_pions(), tracer_grille()
 
@@ -87,7 +80,6 @@ def mouse_coords(event):
         # mouse selected point is converted in a case from the grid
         if mouse_point[0] > abs_min and mouse_point[0] < abs_max :
             if mouse_point[1] > ord_min and mouse_point[1] < ord_max :
-                # print("inferieur à 15 d'ecart", x)
                 current_game[turn]= x
                 if turn % 2 == 0:
                     selected_case(x)
@@ -97,25 +89,21 @@ def mouse_coords(event):
                     print(mouse_point, grid[x])
                     #the case is sent to move_pion function as input
                     val = current_game[turn-1]
-                    # print(str(x),str(val))
-                    move_pion(str(val),str(x))
-                    # selected_case(x, str(x))
+                    if val in cases_defense:
+                        move_pion(str(val),str(x),cases_defense)
+                    elif val in case_king:
+                        move_pion(str(val),str(x),case_king)
+                    else:
+                        move_pion(str(val),str(x),cases_attaque)
                     turn += 1
-                    print(turn)
-                    # current_game[turn]= x
-                    print(current_game)
+                    print(turn, current_game)
     
-
-               
-
 
 
 canvas = Canvas(fenetre, height= 440, width= 440, background= "grey")
 canvas.pack()
 bouton1 = Button(fenetre, text="Quitter", command = fenetre.destroy)
 bouton1.pack()
-bouton2 = Button(fenetre, text="ligne", command = tracer_grille)
-bouton2.pack()
 bouton3 = Button(fenetre, text="pions", command = placer_pions)
 bouton3.pack()
 bouton4 = Button(fenetre, text="move", command = lambda: move_pion('f7'))
@@ -126,6 +114,7 @@ canvas.bind("<1>",mouse_coords)
 # print("resultat = " + str(mouse_coords))
 
 
-
+tracer_grille()
+placer_pions()
 
 fenetre.mainloop() 
