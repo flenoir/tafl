@@ -9,8 +9,11 @@ case_king = ["f5"]
 grid = {}
 current_game = {}
 turn = 0
+letters = []
+player = "player1"
 
 def index_cases():
+    global letters
     values = list(range(20,440,40))
     letters = ["a","b","c","d","e","f","g","h","i","j","k"]
 
@@ -51,10 +54,35 @@ def placer_pions():
         canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='blue', fill='blue')
 
 def move_pion(data,target,case_lists):
+    temp_auth_moves = []
+    # define authorized pawn moves
+    if data[0:1] in letters:
+        prev = letters.index(data[0:1])-1
+        next = letters.index(data[0:1])+1
+        temp_auth_moves.append(data[0:1] + str(int(data[1:])-1))
+        temp_auth_moves.append(data[0:1] + str(int(data[1:])+1))
+        temp_auth_moves.append(letters[prev] + data[1:])
+        temp_auth_moves.append(letters[next] + data[1:])
+        # print(temp_auth_moves)
+        
+     # we need to reduce temp_auth_moves owing to pawn already in place.
+    for i in temp_auth_moves:
+        if i in cases_attaque:
+            temp_auth_moves.remove(i)
+            print( "you can't go here" + str(temp_auth_moves))
+
+    # effectively move the pawn
     for el in case_lists:
-        if el == data: # if case is found by mouse_point
+        global player
+        if el == data and target in temp_auth_moves: # if case is found by mouse_point and target is oin authorized cases for move
         # the we move the pawn on the proper case list         
             case_lists[case_lists.index(data)] = target
+            # switch player after effective move 
+            if player == "player1":
+                player = "player2"
+            else:
+                player = "player1"
+            print(player)
             canvas.delete("all")
             return placer_pions(), tracer_grille()
 
@@ -66,6 +94,7 @@ def selected_case(d):
 
 def mouse_coords(event):
     global turn # préciser que c'est une variable globale sinon pb de scope
+    global player
     #recupere les coordonnées du point x,y du clic de la souris
     mouse_point = (event.x, event.y)
 
@@ -89,11 +118,11 @@ def mouse_coords(event):
                     print(mouse_point, grid[x])
                     #the case is sent to move_pion function as input
                     val = current_game[turn-1]
-                    if val in cases_defense:
+                    if val in cases_defense and player == "player1":
                         move_pion(str(val),str(x),cases_defense)
-                    elif val in case_king:
+                    elif val in case_king and player == "player1":
                         move_pion(str(val),str(x),case_king)
-                    else:
+                    elif val in cases_attaque and player =="player2":
                         move_pion(str(val),str(x),cases_attaque)
                     turn += 1
                     print(turn, current_game)
@@ -104,14 +133,22 @@ canvas = Canvas(fenetre, height= 440, width= 440, background= "grey")
 canvas.pack()
 bouton1 = Button(fenetre, text="Quitter", command = fenetre.destroy)
 bouton1.pack()
-bouton3 = Button(fenetre, text="pions", command = placer_pions)
-bouton3.pack()
-bouton4 = Button(fenetre, text="move", command = lambda: move_pion('f7'))
-bouton4.pack()
+# bouton3 = Button(fenetre, text="pions", command = placer_pions)
+# bouton3.pack()
+# bouton4 = Button(fenetre, text="move", command = lambda: move_pion('f7'))
+# bouton4.pack()
 
 canvas.bind("<1>",mouse_coords)
 # print(current_game)
 # print("resultat = " + str(mouse_coords))
+
+
+# creation d'une fenetre de saisie
+# player1_label = Label(fenetre, text="enter player's one name")
+# player1_label.pack()
+# player1_name = Entry(fenetre)
+# player1_name.pack()
+
 
 
 tracer_grille()
