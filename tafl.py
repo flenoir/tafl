@@ -10,7 +10,7 @@ grid = {}
 current_game = {}
 turn = 0
 letters = []
-player = "player1"
+player = "Red plays"
 
 def index_cases():
     global letters
@@ -53,12 +53,24 @@ def placer_pions():
         y = coord_cases[item][1]
         canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='blue', fill='blue')
 
+def display_player_turn(newName):
+    w.config(text=newName)
+
+
+
 def move_pion(data,target,case_lists):
     temp_auth_moves = []
     # define authorized pawn moves
     if data[0:1] in letters:
         prev = letters.index(data[0:1])-1
-        next = letters.index(data[0:1])+1
+        # exception for pawns on row "k"
+        if data[0:1] == "k":
+            next = letters.index(data[0:1])
+            print("if " + str(next))
+        else:
+            next = letters.index(data[0:1])+1
+            print("else " + str(next))
+
         temp_auth_moves.append(data[0:1] + str(int(data[1:])-1))
         temp_auth_moves.append(data[0:1] + str(int(data[1:])+1))
         temp_auth_moves.append(letters[prev] + data[1:])
@@ -70,25 +82,41 @@ def move_pion(data,target,case_lists):
         if i in cases_attaque:
             temp_auth_moves.remove(i)
             print( "you can't go here" + str(temp_auth_moves))
+            print(cases_attaque)
+        elif i in cases_defense:
+            temp_auth_moves.remove(i)
+            print( "you can't go here too" + str(temp_auth_moves))
+            print(cases_defense)
 
     # effectively move the pawn
     for el in case_lists:
         global player
-        if el == data and target in temp_auth_moves: # if case is found by mouse_point and target is oin authorized cases for move
+        if el == data and target in temp_auth_moves: # if case is found by mouse_point and target is in authorized cases for move
         # the we move the pawn on the proper case list         
             case_lists[case_lists.index(data)] = target
             # switch player after effective move 
-            if player == "player1":
-                player = "player2"
+            if player == "Red plays":
+                player = "Black plays"
             else:
-                player = "player1"
+                player = "Red plays"
             print(player)
             canvas.delete("all")
-            return placer_pions(), tracer_grille()
+            print(case_lists)
+            return placer_pions(), tracer_grille(),display_player_turn(player)
 
 def selected_case(d):
-    selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
-    canvas.tag_lower(selected)
+    if d in cases_defense:
+        selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
+        canvas.tag_lower(selected)
+    elif d in cases_attaque:
+        selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
+        canvas.tag_lower(selected)
+    elif d in case_king:
+        selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
+        canvas.tag_lower(selected)
+    else:
+        print(d + " not in selected cases")
+        turn -=1
 
 # il faut faire un tableau dans lequel on classe les tours et les cases selectionnées par la souris, si le tour != de int, on récupèrera la valeur de la case trouvée au tour précédent.
 
@@ -110,22 +138,25 @@ def mouse_coords(event):
         if mouse_point[0] > abs_min and mouse_point[0] < abs_max :
             if mouse_point[1] > ord_min and mouse_point[1] < ord_max :
                 current_game[turn]= x
+                # if turn is even
                 if turn % 2 == 0:
                     selected_case(x)
+                    print(" even " + str(turn))
                     turn += 1
-                    print(turn)
+                # else turn is odd
                 else:
                     print(mouse_point, grid[x])
                     #the case is sent to move_pion function as input
                     val = current_game[turn-1]
-                    if val in cases_defense and player == "player1":
+                    if val in cases_defense and player == "Red plays":
                         move_pion(str(val),str(x),cases_defense)
-                    elif val in case_king and player == "player1":
+                    elif val in case_king and player == "Red plays":
                         move_pion(str(val),str(x),case_king)
-                    elif val in cases_attaque and player =="player2":
+                    elif val in cases_attaque and player =="Black plays":
                         move_pion(str(val),str(x),cases_attaque)
                     turn += 1
                     print(turn, current_game)
+                    
     
 
 
@@ -137,6 +168,8 @@ bouton1.pack()
 # bouton3.pack()
 # bouton4 = Button(fenetre, text="move", command = lambda: move_pion('f7'))
 # bouton4.pack()
+w = Label(fenetre, text="Red plays")
+w.pack()
 
 canvas.bind("<1>",mouse_coords)
 # print(current_game)
@@ -153,5 +186,7 @@ canvas.bind("<1>",mouse_coords)
 
 tracer_grille()
 placer_pions()
+print(turn)
+
 
 fenetre.mainloop() 
