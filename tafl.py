@@ -56,9 +56,7 @@ def placer_pions():
 def display_player_turn(newName):
     w.config(text=newName)
 
-
-
-def move_pion(data,target,case_lists):
+def authorized_moves(data):
     temp_auth_moves = []
     # define authorized pawn moves
     if data[0:1] in letters:
@@ -75,23 +73,34 @@ def move_pion(data,target,case_lists):
         temp_auth_moves.append(data[0:1] + str(int(data[1:])+1))
         temp_auth_moves.append(letters[prev] + data[1:])
         temp_auth_moves.append(letters[next] + data[1:])
-        # print(temp_auth_moves)
+        print("mouvements " + str(temp_auth_moves))
+        return temp_auth_moves
         
-     # we need to reduce temp_auth_moves owing to pawn already in place.
-    for i in temp_auth_moves:
-        if i in cases_attaque:
-            temp_auth_moves.remove(i)
-            print( "you can't go here" + str(temp_auth_moves))
-            print(cases_attaque)
-        elif i in cases_defense:
-            temp_auth_moves.remove(i)
-            print( "you can't go here too" + str(temp_auth_moves))
-            print(cases_defense)
+    # we need to reduce temp_auth_moves owing to pawn already in place.
+    # for i in temp_auth_moves:
+    #     if i in cases:
+    #         temp_auth_moves.remove(i)
+    #         print( "you can't go here" + str(temp_auth_moves))
+    #         return temp_auth_moves
 
+def move_pion(data,target,case_lists):
     # effectively move the pawn
     for el in case_lists:
+        auth_arr = authorized_moves(data)
+
+        for i in auth_arr:
+            if i in cases_attaque:
+                auth_arr.remove(i)
+                print( "you can't go here" + str(auth_arr))
+            elif i in  cases_defense:
+                auth_arr.remove(i)
+                print( "you can't go here" + str(auth_arr))
+            elif i in case_king:
+                auth_arr.remove(i)
+                print( "you can't go here" + str(auth_arr))
+
         global player
-        if el == data and target in temp_auth_moves: # if case is found by mouse_point and target is in authorized cases for move
+        if el == data and target in auth_arr: # if case is found by mouse_point and target is in authorized cases for move
         # the we move the pawn on the proper case list         
             case_lists[case_lists.index(data)] = target
             # switch player after effective move 
@@ -118,12 +127,11 @@ def selected_case(d):
         print(d + " not in selected cases")
         turn -=1
 
-# il faut faire un tableau dans lequel on classe les tours et les cases selectionnées par la souris, si le tour != de int, on récupèrera la valeur de la case trouvée au tour précédent.
 
 def mouse_coords(event):
-    global turn # préciser que c'est une variable globale sinon pb de scope
+    global turn # need to be a global variable
     global player
-    #recupere les coordonnées du point x,y du clic de la souris
+    # retreive x and y coordinates from the mouse
     mouse_point = (event.x, event.y)
 
     for x in grid: 
