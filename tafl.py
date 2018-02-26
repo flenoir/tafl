@@ -1,6 +1,6 @@
 from tkinter import *
 
-fenetre = Tk()
+window = Tk()
 
 # print(coord_cases["A1"][0])
 cases_attaque = ["a3","a4","a5","a6","a7","b5","d0","e0","f0","g0","h0","f1","f9","d10","e10","f10","g10","h10","j5","k3","k4","k5","k6","k7"]
@@ -26,29 +26,25 @@ def index_cases():
 coord_cases = index_cases()
 # print(coord_cases)
 
-def tracer_grille():
+def draw_grid():
     for line in range(13):
         canvas.create_line(line*40,0,line*40,440, width= 2, fill="blue")
         canvas.create_line(0,line*40,440,line*40, width=2, fill="red")
-    
 
-def placer_pions():
+def set_pawns():
     rayon = 15
 
     for item in cases_attaque:
-            # print(coord_cases[item][0],coord_cases[item][1])
             x = coord_cases[item][0]
             y = coord_cases[item][1]
             canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='black', fill='black')
     
     for item in cases_defense:
-        # print(coord_cases[item][0],coord_cases[item][1])
         x = coord_cases[item][0]
         y = coord_cases[item][1]
         canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='red', fill='red')
     
     for item in case_king:
-        # print(coord_cases[item][0],coord_cases[item][1])
         x = coord_cases[item][0]
         y = coord_cases[item][1]
         canvas.create_oval(x-rayon,y-rayon,x+rayon,y+rayon,outline='blue', fill='blue')
@@ -64,42 +60,26 @@ def authorized_moves(data):
         # exception for pawns on row "k"
         if data[0:1] == "k":
             next = letters.index(data[0:1])
-            print("if " + str(next))
         else:
             next = letters.index(data[0:1])+1
-            print("else " + str(next))
 
         temp_auth_moves.append(data[0:1] + str(int(data[1:])-1))
         temp_auth_moves.append(data[0:1] + str(int(data[1:])+1))
         temp_auth_moves.append(letters[prev] + data[1:])
         temp_auth_moves.append(letters[next] + data[1:])
-        print("mouvements " + str(temp_auth_moves))
-        return temp_auth_moves
-        
-    # we need to reduce temp_auth_moves owing to pawn already in place.
-    # for i in temp_auth_moves:
-    #     if i in cases:
-    #         temp_auth_moves.remove(i)
-    #         print( "you can't go here" + str(temp_auth_moves))
-    #         return temp_auth_moves
+
+    actual_turn_pawn_cases = case_king + cases_attaque + cases_defense
+    real_arr = [x for x in temp_auth_moves if x not in actual_turn_pawn_cases]
+    # print("You can't go here, authorized moves are : ",real_arr, actual_turn_pawn_cases)
+    return real_arr
+
 
 def move_pion(data,target,case_lists):
     # effectively move the pawn
     for el in case_lists:
-        auth_arr = authorized_moves(data)
-
-        for i in auth_arr:
-            if i in cases_attaque:
-                auth_arr.remove(i)
-                print( "you can't go here" + str(auth_arr))
-            elif i in  cases_defense:
-                auth_arr.remove(i)
-                print( "you can't go here" + str(auth_arr))
-            elif i in case_king:
-                auth_arr.remove(i)
-                print( "you can't go here" + str(auth_arr))
-
+        auth_arr = authorized_moves(data) # check authorized moves
         global player
+
         if el == data and target in auth_arr: # if case is found by mouse_point and target is in authorized cases for move
         # the we move the pawn on the proper case list         
             case_lists[case_lists.index(data)] = target
@@ -108,10 +88,8 @@ def move_pion(data,target,case_lists):
                 player = "Black plays"
             else:
                 player = "Red plays"
-            print(player)
             canvas.delete("all")
-            print(case_lists)
-            return placer_pions(), tracer_grille(),display_player_turn(player)
+            return set_pawns(), draw_grid(),display_player_turn(player)
 
 def selected_case(d):
     if d in cases_defense:
@@ -164,19 +142,13 @@ def mouse_coords(event):
                         move_pion(str(val),str(x),cases_attaque)
                     turn += 1
                     print(turn, current_game)
-                    
-    
 
 
-canvas = Canvas(fenetre, height= 440, width= 440, background= "grey")
+canvas = Canvas(window, height= 440, width= 440, background= "grey")
 canvas.pack()
-bouton1 = Button(fenetre, text="Quitter", command = fenetre.destroy)
+bouton1 = Button(window, text="Quitter", command = window.destroy)
 bouton1.pack()
-# bouton3 = Button(fenetre, text="pions", command = placer_pions)
-# bouton3.pack()
-# bouton4 = Button(fenetre, text="move", command = lambda: move_pion('f7'))
-# bouton4.pack()
-w = Label(fenetre, text="Red plays")
+w = Label(window, text="Red plays")
 w.pack()
 
 canvas.bind("<1>",mouse_coords)
@@ -184,17 +156,17 @@ canvas.bind("<1>",mouse_coords)
 # print("resultat = " + str(mouse_coords))
 
 
-# creation d'une fenetre de saisie
-# player1_label = Label(fenetre, text="enter player's one name")
+# creation d'une window de saisie
+# player1_label = Label(window, text="enter player's one name")
 # player1_label.pack()
-# player1_name = Entry(fenetre)
+# player1_name = Entry(window)
 # player1_name.pack()
 
 
 
-tracer_grille()
-placer_pions()
+draw_grid()
+set_pawns()
 print(turn)
 
 
-fenetre.mainloop() 
+window.mainloop() 
