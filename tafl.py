@@ -81,16 +81,47 @@ def take_pawns(value, player, players_cases):
     left = letters[prev] + value[1:]
     right = letters[next] + value[1:]
     print("take",up,down,left,right)
+    
+    prev1 = letters.index(value[0:1])-2
+    next1 = letters.index(value[0:1])+2
+    up1 = value[0:1] + str(int(value[1:])-2)
+    down1 = value[0:1] + str(int(value[1:])+2)
+    left1 = letters[prev1] + value[1:]
+    right1 = letters[next1] + value[1:]
+    print("take1",up1,down1,left1,right1)
 
-    actual_turn_pawn_cases = case_king + cases_attaque + cases_defense
-    currents_opponent_cases = [item for item in actual_turn_pawn_cases if item not in players_cases] 
-    print("current", currents_opponent_cases)
-    if left in currents_opponent_cases and right in currents_opponent_cases:
-        players_cases.remove(value)
-        # print(" on retire un pion")
-    elif up in currents_opponent_cases and down in currents_opponent_cases:
-        players_cases.remove(value)
-        # print(" on retire aussi un pion")
+    if player == "Red plays":
+        if up in cases_attaque and up1 in cases_defense:
+            cases_attaque.remove(up)
+        if down in cases_attaque and down1 in cases_defense:
+            cases_attaque.remove(down)
+        if left in cases_attaque and left1 in cases_defense:
+            print("case attaque", cases_attaque, "value", value)
+            cases_attaque.remove(left)
+        if right in cases_attaque and right1 in cases_defense:
+            print("case attaque", cases_attaque, "value", value)
+            cases_attaque.remove(right)
+
+    if player == "Black plays":
+        if up in cases_defense and up1 in cases_attaque:
+            cases_defense.remove(up)
+        if down in cases_defense and down1 in cases_attaque:
+            cases_defense.remove(down)
+        if left in cases_defense and left1 in cases_attaque:
+            cases_defense.remove(left)
+        if right in cases_defense and right1 in cases_attaque:
+            cases_defense.remove(right)
+
+
+    # actual_turn_pawn_cases = case_king + cases_attaque + cases_defense
+    # currents_opponent_cases = [item for item in actual_turn_pawn_cases if item not in players_cases] 
+    # print("current", currents_opponent_cases)
+    # if left in currents_opponent_cases and right in currents_opponent_cases:
+    #     players_cases.remove(value)
+    #     # print(" on retire un pion")
+    # elif up in currents_opponent_cases and down in currents_opponent_cases:
+    #     players_cases.remove(value)
+    #     # print(" on retire aussi un pion")
 
 
 def move_pion(data,target,case_lists):
