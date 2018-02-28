@@ -73,6 +73,25 @@ def authorized_moves(data):
     # print("You can't go here, authorized moves are : ",real_arr, actual_turn_pawn_cases)
     return real_arr
 
+def take_pawns(value, player, players_cases):
+    prev = letters.index(value[0:1])-1
+    next = letters.index(value[0:1])+1
+    up = value[0:1] + str(int(value[1:])-1)
+    down = value[0:1] + str(int(value[1:])+1)
+    left = letters[prev] + value[1:]
+    right = letters[next] + value[1:]
+    print("take",up,down,left,right)
+
+    actual_turn_pawn_cases = case_king + cases_attaque + cases_defense
+    currents_opponent_cases = [item for item in actual_turn_pawn_cases if item not in players_cases] 
+    print("current", currents_opponent_cases)
+    if left in currents_opponent_cases and right in currents_opponent_cases:
+        players_cases.remove(value)
+        # print(" on retire un pion")
+    elif up in currents_opponent_cases and down in currents_opponent_cases:
+        players_cases.remove(value)
+        # print(" on retire aussi un pion")
+
 
 def move_pion(data,target,case_lists):
     # effectively move the pawn
@@ -83,6 +102,10 @@ def move_pion(data,target,case_lists):
         if el == data and target in auth_arr: # if case is found by mouse_point and target is in authorized cases for move
         # the we move the pawn on the proper case list         
             case_lists[case_lists.index(data)] = target
+
+            # add take pawn function to remove opponent pawns if they are framed by two pawns
+            take_pawns(target, player, case_lists)
+
             # switch player after effective move 
             if player == "Red plays":
                 player = "Black plays"
@@ -127,7 +150,7 @@ def mouse_coords(event):
                 # if turn is even
                 if turn % 2 == 0:
                     selected_case(x)
-                    print(" even " + str(turn))
+                    # print(" even " + str(turn))
                     turn += 1
                 # else turn is odd
                 else:
