@@ -74,16 +74,34 @@ def authorized_moves(data):
     return real_arr
 
 def take_pawns(value, player, players_cases):
+    
+    print("la value est ", value)
     prev = letters.index(value[0:1])-1
     next = letters.index(value[0:1])+1
+    prev1 = letters.index(value[0:1])-2
+    next1 = letters.index(value[0:1])+2
+    print("next", next, next1, prev, prev1, str(value[0:1]))
+
+    if value[0:1] == "k" or value[0:1] == "j":
+        next = 10
+        next1 = 10
+    else:
+        next = letters.index(value[0:1])+1
+        next1 = letters.index(value[0:1])+2
+    
+    print("next2", next, next1, prev, prev1)
+
+    close_arr = []
     up = value[0:1] + str(int(value[1:])-1)
     down = value[0:1] + str(int(value[1:])+1)
     left = letters[prev] + value[1:]
     right = letters[next] + value[1:]
-    print("take",up,down,left,right)
+    close_arr.append(up)
+    close_arr.append(down)
+    close_arr.append(left)
+    close_arr.append(right)
+    print("take", close_arr)
     
-    prev1 = letters.index(value[0:1])-2
-    next1 = letters.index(value[0:1])+2
     up1 = value[0:1] + str(int(value[1:])-2)
     down1 = value[0:1] + str(int(value[1:])+2)
     left1 = letters[prev1] + value[1:]
@@ -96,10 +114,8 @@ def take_pawns(value, player, players_cases):
         if down in cases_attaque and down1 in cases_defense:
             cases_attaque.remove(down)
         if left in cases_attaque and left1 in cases_defense:
-            print("case attaque", cases_attaque, "value", value)
             cases_attaque.remove(left)
         if right in cases_attaque and right1 in cases_defense:
-            print("case attaque", cases_attaque, "value", value)
             cases_attaque.remove(right)
 
     if player == "Black plays":
@@ -113,15 +129,38 @@ def take_pawns(value, player, players_cases):
             cases_defense.remove(right)
 
 
-    # actual_turn_pawn_cases = case_king + cases_attaque + cases_defense
-    # currents_opponent_cases = [item for item in actual_turn_pawn_cases if item not in players_cases] 
-    # print("current", currents_opponent_cases)
-    # if left in currents_opponent_cases and right in currents_opponent_cases:
-    #     players_cases.remove(value)
-    #     # print(" on retire un pion")
-    # elif up in currents_opponent_cases and down in currents_opponent_cases:
-    #     players_cases.remove(value)
-    #     # print(" on retire aussi un pion")
+    
+def red_wins(king_case):
+    print("king", king_case)
+    if king_case == "a0":
+        print("Red Wins")
+    elif king_case == "k0":
+        print("Red Wins")
+    elif king_case == "a10":
+        print("Red Wins")
+    elif king_case == "k10":
+        print("Red Wins")
+    
+def black_wins(kvalue):
+    kvalue = str(kvalue[0])
+    print("la kvalue est ", kvalue)
+    prev = letters.index(kvalue[0:1])-1
+    next = letters.index(kvalue[0:1])+1
+    closest_arr = []
+    up = kvalue[0:1] + str(int(kvalue[1:])-1)
+    down = kvalue[0:1] + str(int(kvalue[1:])+1)
+    left = letters[prev] + kvalue[1:]
+    right = letters[next] + kvalue[1:]
+    closest_arr.append(up)
+    closest_arr.append(down)
+    closest_arr.append(left)
+    closest_arr.append(right)
+    print("take closest", closest_arr)
+
+    # result = all(x in cases_attaque for x in closest_arr)
+    # print(result, closest_arr, cases_attaque, case_king)
+    if all(x in cases_attaque for x in closest_arr):
+        print("Black wins")
 
 
 def move_pion(data,target,case_lists):
@@ -143,7 +182,10 @@ def move_pion(data,target,case_lists):
             else:
                 player = "Red plays"
             canvas.delete("all")
+            red_wins(target)
+            black_wins(case_king)
             return set_pawns(), draw_grid(),display_player_turn(player)
+
 
 def selected_case(d):
     if d in cases_defense:
