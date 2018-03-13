@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 
 window = Tk()
 
@@ -100,13 +101,11 @@ def take_pawns(value, player, players_cases):
     close_arr.append(down)
     close_arr.append(left)
     close_arr.append(right)
-    print("take", close_arr)
     
     up1 = value[0:1] + str(int(value[1:])-2)
     down1 = value[0:1] + str(int(value[1:])+2)
     left1 = letters[prev1] + value[1:]
     right1 = letters[next1] + value[1:]
-    print("take1",up1,down1,left1,right1)
 
     if player == "Red plays":
         if up in cases_attaque and up1 in cases_defense:
@@ -131,20 +130,26 @@ def take_pawns(value, player, players_cases):
 
     
 def red_wins(king_case):
-    print("king", king_case)
-    if king_case == "a0":
-        print("Red Wins")
-    elif king_case == "k0":
-        print("Red Wins")
-    elif king_case == "a10":
-        print("Red Wins")
-    elif king_case == "k10":
-        print("Red Wins")
+    print("king", king_case[0])
+    escape_cases = ["a0", "k0", "a10", "K10"]
+
+    for y in escape_cases:
+        print(y)
+        if y == king_case[0]:
+            messagebox.showinfo("Red Wins", "Les Rouges ont gagné ")
+            window.destroy()
+
     
 def black_wins(kvalue):
     kvalue = str(kvalue[0])
-    print("la kvalue est ", kvalue)
     prev = letters.index(kvalue[0:1])-1
+
+#   # exception for pawns on row "k"
+#     if kvalue[0:1] == "k":
+#         next = letters.index(kvalue[0:1])
+#     else:
+#         next = letters.index(kvalue[0:1])+1
+
     next = letters.index(kvalue[0:1])+1
     closest_arr = []
     up = kvalue[0:1] + str(int(kvalue[1:])-1)
@@ -155,12 +160,12 @@ def black_wins(kvalue):
     closest_arr.append(down)
     closest_arr.append(left)
     closest_arr.append(right)
-    print("take closest", closest_arr)
 
     # result = all(x in cases_attaque for x in closest_arr)
     # print(result, closest_arr, cases_attaque, case_king)
     if all(x in cases_attaque for x in closest_arr):
         print("Black wins")
+        messagebox.showwarning("Black Wins", "Les Noires ont gagné, vouslez-vous rejouer ? ")
 
 
 def move_pion(data,target,case_lists):
@@ -182,7 +187,7 @@ def move_pion(data,target,case_lists):
             else:
                 player = "Red plays"
             canvas.delete("all")
-            red_wins(target)
+            red_wins(case_king)
             black_wins(case_king)
             return set_pawns(), draw_grid(),display_player_turn(player)
 
@@ -198,7 +203,7 @@ def selected_case(d):
         selected = canvas.create_rectangle(grid[d][0]-20, grid[d][1]-20, grid[d][0]+20, grid[d][1]+20,fill='green')
         canvas.tag_lower(selected)
     else:
-        print(d + " not in selected cases")
+        # print(d + " not in selected cases")
         turn -=1
 
 
@@ -262,7 +267,6 @@ canvas.bind("<1>",mouse_coords)
 
 draw_grid()
 set_pawns()
-print(turn)
 
 
 window.mainloop() 
