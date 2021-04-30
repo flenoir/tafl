@@ -73,7 +73,7 @@ pywinauto==0.6.3
 pyzmq==16.0.3
 qtconsole==4.3.1
 requests==2.18.4
-rsa==3.4.2
+rsa==4.7
 scipy==1.0.0
 search-google==1.2.1
 simplegeneric==0.8.1
